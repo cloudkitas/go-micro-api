@@ -19,12 +19,16 @@ func main() {
 
 	ph := handlers.NewProducts(l)
 	bh := handlers.NewBanks(l)
+	uh := handlers.NewUsers(l)
 
 	GetRouter := sm.Methods(http.MethodGet).Subrouter()
 	GetRouter.HandleFunc("/", ph.GetProducts)
 
 	BankGetRouter := sm.Methods(http.MethodGet).Subrouter()
 	BankGetRouter.HandleFunc("/banks", bh.GetBanks)
+
+	UserGetRouter := sm.Methods(http.MethodGet).Subrouter()
+	UserGetRouter.HandleFunc("/users", uh.GetUsers)
 
 	PostRouter := sm.Methods(http.MethodPost).Subrouter()
 	PostRouter.HandleFunc("/", ph.AddProducts)
@@ -33,6 +37,10 @@ func main() {
 	BankPostRouter := sm.Methods(http.MethodPost).Subrouter()
 	BankPostRouter.HandleFunc("/banks", bh.AddBanks)
 	BankPostRouter.Use(bh.MiddlewareValidateBank)
+
+	UserPostRouter := sm.Methods(http.MethodPost).Subrouter()
+	UserPostRouter.HandleFunc("/users", uh.AddUsers)
+	UserPostRouter.Use(uh.MiddlewareValidateUser)
 
 	PutRouter := sm.Methods(http.MethodPut).Subrouter()
 	PutRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
