@@ -21,6 +21,7 @@ func main() {
 	bh := handlers.NewBanks(l)
 	uh := handlers.NewUsers(l)
 	ah := handlers.NewAssets(l)
+	ch := handlers.NewCompanies(l)
 
 	GetRouter := sm.Methods(http.MethodGet).Subrouter()
 	GetRouter.HandleFunc("/", ph.GetProducts)
@@ -33,6 +34,9 @@ func main() {
 
 	AssetGetRouter := sm.Methods(http.MethodGet).Subrouter()
 	AssetGetRouter.HandleFunc("/assets", ah.GetAssets)
+
+	CompanyGetRouter := sm.Methods(http.MethodGet).Subrouter()
+	CompanyGetRouter.HandleFunc("/companies", ch.GetCompanies)
 
 	PostRouter := sm.Methods(http.MethodPost).Subrouter()
 	PostRouter.HandleFunc("/", ph.AddProducts)
@@ -50,9 +54,13 @@ func main() {
 	AssetPostRouter.HandleFunc("/assets", ah.AddAssets)
 	AssetPostRouter.Use(ah.MiddlewareValidateAssets)
 
+	CompanyPostRouter := sm.Methods(http.MethodPost).Subrouter()
+	CompanyPostRouter.HandleFunc("/companies", ch.AddCompany)
+	CompanyPostRouter.Use(ch.MiddlewareValidateCompany)
+
 	PutRouter := sm.Methods(http.MethodPut).Subrouter()
-	PutRouter.HandleFunc("/{id:[0-9]+}", ah.UpdateAssets)
-	PutRouter.Use(ah.MiddlewareValidateAssets)
+	PutRouter.HandleFunc("/{id:[0-9]+}", ch.UpdateCompany)
+	PutRouter.Use(ch.MiddlewareValidateCompany)
 
 	s := http.Server{
 		Addr:         ":9090",

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"go-api/practice/data"
 	"log"
 	"net/http"
@@ -39,19 +40,22 @@ func (p Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(rw, "Unable to convert ID", http.StatusBadRequest)
+		return
 	}
 
+	p.l.Println("Handle PUT Product", id)
+	prod := r.Context().Value(KeyProduct{}).(data.Product)
+
+	err = data.UpdateProduct(id, &prod)
 	if err == data.ErrProductNotFound {
 		http.Error(rw, "Unable to Find Product", http.StatusNotFound)
+		return
 	}
 
 	if err != nil {
 		http.Error(rw, "Unable to find product", http.StatusInternalServerError)
+		return
 	}
-
-	prod := r.Context().Value(KeyProduct{}).(data.Product)
-	p.l.Println("Handle PUT Product", id)
-	data.UpdateProduct(id, &prod)
 
 }
 
@@ -61,7 +65,20 @@ func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 
 		err := prod.FromJSON(r.Body)
 		if err != nil {
+			p.l.Println("Error Desearkuzubg product", err)
 			http.Error(rw, "Unable to umarshal json", http.StatusBadRequest)
+			return
+		}
+
+		// Validating the product
+		err = prod.Validate()
+		if err != nil {
+			p.l.Println("Error Validating Product", err)
+			http.Error(
+				rw,
+				fmt.Sprintf("Error Validating Product: %s", err),
+				http.StatusBadRequest)
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)

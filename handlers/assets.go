@@ -41,6 +41,10 @@ func (a Assets) UpdateAssets(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	a.l.Println("Handle PUT Asset", id)
+	asst := r.Context().Value(KeyAsset{}).(data.Asset)
+
+	err = data.UpdateAsset(id, &asst)
 	if err == data.ErrAssetNotFound {
 		http.Error(rw, "Unable to Find Asset", http.StatusNotFound)
 		return
@@ -49,9 +53,7 @@ func (a Assets) UpdateAssets(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Unable to find Asset", http.StatusInternalServerError)
 		return
 	}
-	asst := r.Context().Value(KeyAsset{}).(data.Asset)
-	a.l.Println("Handle PUT Asset", id)
-	data.UpdateAsset(id, &asst)
+
 }
 
 type KeyAsset struct{}
