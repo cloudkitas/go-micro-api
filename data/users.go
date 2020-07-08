@@ -4,17 +4,37 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type User struct {
-	ID        int
-	Username  string
+	ID        int    `json:"id" validate:"required"`
+	Username  string `json:"username" validate:"required,valusername"`
 	AdminUser bool
 }
 
 func (u *User) FromJSON(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(u)
+}
+
+func (u *User) Validate() error {
+	validate := validator.New()
+	validate.RegisterValidation("valusername", valUser)
+
+	return validate.Struct(u)
+}
+
+func valUser(fl validator.FieldLevel) bool {
+	re := regexp.MustCompile(`[a-z]+-[a-z]+`)
+	matches := re.FindAllString(fl.Field().String(), -1)
+
+	if len(matches) != 1 {
+		return false
+	}
+	return true
 }
 
 type users []*User

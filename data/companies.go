@@ -4,18 +4,38 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
+
+	"github.com/go-playground/validator"
 )
 
 type Company struct {
-	ID      int
-	Name    string
-	Sector  string
-	Revenue float64
+	ID      int     `json:"id"`
+	Name    string  `json:"name" validate:"required"`
+	Sector  string  `json:"sector" validate:"required,sectorVal"`
+	Revenue float64 `json:"revenue"`
 }
 
 func (c *Company) FromJSON(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(c)
+}
+
+func (c *Company) Validate() error {
+	validate := validator.New()
+	validate.RegisterValidation("sectorVal", sectorVal)
+	return validate.Struct(c)
+}
+
+func sectorVal(fl validator.FieldLevel) bool {
+	re := regexp.MustCompile(`[a-z]+-[0-9]+`)
+	matches := re.FindAllString(fl.Field().String(), -1)
+
+	if len(matches) != 1 {
+		return false
+	}
+
+	return true
 }
 
 type companies []*Company

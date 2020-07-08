@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"go-api/practice/data"
 	"log"
 	"net/http"
@@ -70,6 +71,14 @@ func (c Companies) MiddlewareValidateCompany(next http.Handler) http.Handler {
 		}
 
 		// validate company
+		err = comp.Validate()
+		if err != nil {
+			http.Error(
+				rw,
+				fmt.Sprintf("Error Validating company: %s", err),
+				http.StatusBadRequest)
+			return
+		}
 
 		ctx := context.WithValue(r.Context(), KeyCompany{}, comp)
 		r = r.WithContext(ctx)
