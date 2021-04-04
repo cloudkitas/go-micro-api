@@ -21,6 +21,9 @@ func main() {
 	bh := handlers.NewBanks(l)
 	uh := handlers.NewUsers(l)
 	ah := handlers.NewAssets(l)
+	ch := handlers.NewCompanies(l)
+	cohd := handlers.NewCourses(l)
+	peepsHand := handlers.NewPeoples(l)
 
 	GetRouter := sm.Methods(http.MethodGet).Subrouter()
 	GetRouter.HandleFunc("/", ph.GetProducts)
@@ -33,6 +36,15 @@ func main() {
 
 	AssetGetRouter := sm.Methods(http.MethodGet).Subrouter()
 	AssetGetRouter.HandleFunc("/assets", ah.GetAssets)
+
+	CompanyGetRouter := sm.Methods(http.MethodGet).Subrouter()
+	CompanyGetRouter.HandleFunc("/companies", ch.GetCompanies)
+
+	CoursesGetRouter := sm.Methods(http.MethodGet).Subrouter()
+	CoursesGetRouter.HandleFunc("/courses", cohd.GetCourses)
+
+	PeopleGetRouter := sm.Methods(http.MethodGet).Subrouter()
+	PeopleGetRouter.HandleFunc("/people", peepsHand.GetPeople)
 
 	PostRouter := sm.Methods(http.MethodPost).Subrouter()
 	PostRouter.HandleFunc("/", ph.AddProducts)
@@ -50,9 +62,21 @@ func main() {
 	AssetPostRouter.HandleFunc("/assets", ah.AddAssets)
 	AssetPostRouter.Use(ah.MiddlewareValidateAssets)
 
+	CompanyPostRouter := sm.Methods(http.MethodPost).Subrouter()
+	CompanyPostRouter.HandleFunc("/companies", ch.AddCompany)
+	CompanyPostRouter.Use(ch.MiddlewareValidateCompany)
+
+	CoursesPostRouter := sm.Methods(http.MethodPost).Subrouter()
+	CoursesPostRouter.HandleFunc("/courses", cohd.AddCourse)
+	CoursesPostRouter.Use(cohd.MiddleWareValidateCourse)
+
+	PeoplePostRouter := sm.Methods(http.MethodPost).Subrouter()
+	PeoplePostRouter.HandleFunc("/people", peepsHand.AddPeople)
+	PeoplePostRouter.Use(peepsHand.MiddlewareValidatePeople)
+
 	PutRouter := sm.Methods(http.MethodPut).Subrouter()
-	PutRouter.HandleFunc("/{id:[0-9]+}", ah.UpdateAssets)
-	PutRouter.Use(ah.MiddlewareValidateAssets)
+	PutRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
+	PutRouter.Use(ph.MiddlewareValidateProduct)
 
 	s := http.Server{
 		Addr:         ":9090",

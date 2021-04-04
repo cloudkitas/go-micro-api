@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"go-api/practice/data"
 	"log"
 	"net/http"
@@ -66,6 +67,18 @@ func (u Users) MiddlewareValidateUser(next http.Handler) http.Handler {
 		err := usr.FromJSON(r.Body)
 		if err != nil {
 			http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+			return
+		}
+
+		//validate users json schema
+
+		err = usr.Validate()
+		if err != nil {
+			http.Error(
+				rw,
+				fmt.Sprintf("Error Validating User: %s", err),
+				http.StatusBadRequest)
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), KeyUser{}, usr)

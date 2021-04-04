@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
+
+	"github.com/go-playground/validator"
 )
 
 type Bank struct {
@@ -16,6 +19,26 @@ type Bank struct {
 func (b *Bank) FromJSON(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(b)
+}
+
+func (b *Bank) Validate() error {
+	validate := validator.New()
+
+	validate.RegisterValidation("description", validateBankDescript)
+
+	return validate.Struct(b)
+}
+
+func validateBankDescript(fl validator.FieldLevel) bool {
+	//description is of format staring with Banc-001-lda
+
+	re := regexp.MustCompile(`[a-z]+-[a-z]+-[a-z]+`)
+	matches := re.FindAllString(fl.Field().String(), -1)
+
+	if len(matches) != 1 {
+		return false
+	}
+	return true
 }
 
 type banks []*Bank
