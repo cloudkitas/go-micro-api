@@ -75,8 +75,8 @@ func main() {
 	PeoplePostRouter.Use(peepsHand.MiddlewareValidatePeople)
 
 	PutRouter := sm.Methods(http.MethodPut).Subrouter()
-	PutRouter.HandleFunc("/{id:[0-9]+}", peepsHand.UpdatePeople)
-	PutRouter.Use(peepsHand.MiddlewareValidatePeople)
+	PutRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
+	PutRouter.Use(ph.MiddlewareValidateProduct)
 
 	s := http.Server{
 		Addr:         ":9090",
