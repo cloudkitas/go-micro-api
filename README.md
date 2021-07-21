@@ -1,1 +1,1 @@
-This Product API build in GOlang from Building Microservices with GO. teached by Nic Jackson 
+Product API written in GO
